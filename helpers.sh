@@ -35,6 +35,7 @@ function list_all_tests() {
 	done
 }
 
+<<<<<<< HEAD
 function check_if_extracted() {
 	i=0
 	for res_dir in `ls | grep results-`; do
@@ -58,4 +59,65 @@ function extract_all() {
 			echo Done!
 		fi
 	done
+=======
+function list_site() {
+#    usage="Usage: list_by_site <SITE>"
+#    if [ -z $1 ]; then
+#        echo "Please give the site..."
+#        echo $usage
+#        return -1
+#    else
+#        site=$1
+#    fi
+
+    for res in $(ls | grep results-); do
+	echo -n $res:
+	server=$(cat $res/EXPERIMENT_DATA/SERVER | cut -d- -f1)
+	echo $server
+    done
+
+    #results=$(ssh $site.g5k "ls wireguard-experiment/results/$variant/")
+    #for res in $results; do
+    #    echo $res;
+    #done
+}
+
+
+function list_by_variant() {
+    usage="Usage: list_by_variant <SITE> <VARIANT>"
+    if [ -z $1 ]; then
+	echo "Please give the site..."
+	echo $usage
+	return -1
+    else
+	site=$1
+    fi
+
+    if [ -z $2 ]; then
+	echo "Please give the variant"
+	echo $usage
+	return -1
+    else
+	variant=$2
+    fi
+
+    results=$(ssh $site.g5k "ls wireguard-experiment/results/$variant/")
+    for res in $results; do
+	echo $res;
+    done
+}
+
+function check_analyzed_tests() {
+    for i in `ls | grep results-`; do
+        echo "$i: "
+	echo "TEST_CONFIG: $(cat $i/EXPERIMENT_DATA/TEST_CONFIG)"
+	echo -n "Analysed: "
+	if [ -z "$(ls $i | grep summary)" ]; then
+            echo "No"
+	else
+            echo "Yes"
+	fi
+	echo
+    done
+>>>>>>> dc8cb74 (LAst work)
 }
