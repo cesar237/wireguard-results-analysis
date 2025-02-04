@@ -17,13 +17,11 @@ for run in `ls`; do
     nrun=$(echo $run | cut -d- -f2)
     for cpu in $(ls $run | grep CPU); do
         ncpu=$(echo $cpu | cut -d "-" -f 2)
-
         for flow in $(ls $run/$cpu); do
             nflow=$(echo $flow | cut -d "-" -f 2)
-
             for node in `seq 1 $nflow`; do
                 idx="$ncpu,$nflow,$node,$nrun"
-                data=$(tail -n 1 $run/$cpu/$flow/netperf_rr_$node.log)
+                data=$(tail -n 1 $run/$cpu/$flow/sar/netperf_rr_$node.log)
                 if [ -n "$data" ]; then
                     echo $idx,$data
                 fi        

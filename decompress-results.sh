@@ -1,11 +1,10 @@
 #! /usr/bin/bash
 
 
-res_file=results.tar.zst
+res_file=results.zip
 
 function decompress_file() {
-	tar --extract --zstd --file $res_file
-	rm $res_file
+	unzip $res_file
 }
 
 if [ -z "$1" ]; then
