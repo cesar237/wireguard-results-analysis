@@ -15,7 +15,7 @@ function extract_from_flamegraph() {
         | awk '{s+=$1} END {print s}')
 }
 
-maindir="cryptonce-trace-v2"
+maindir=$1
 
 for resdir in `ls $maindir`; do
 # resdir="results-1e68e038"
