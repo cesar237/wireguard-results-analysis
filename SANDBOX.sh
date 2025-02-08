@@ -2,7 +2,7 @@
 . helpers-trace-cmd.sh
 
 
-folder=gonogo-2
+folder=gonogo-5
 
 scp -r nancy.g5k:wireguard-experiment/results/$folder .
 decompress_folder $folder

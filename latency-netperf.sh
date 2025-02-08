@@ -21,10 +21,12 @@ for run in `ls`; do
             nflow=$(echo $flow | cut -d "-" -f 2)
             for node in `seq 1 $nflow`; do
                 idx="$ncpu,$nflow,$node,$nrun"
-                data=$(tail -n 1 $run/$cpu/$flow/sar/netperf_rr_$node.log)
-                if [ -n "$data" ]; then
-                    echo $idx,$data
-                fi        
+                for e in `seq 1 5`; do
+                    data=$(tail -n 1 $run/$cpu/$flow/sar/netperf${e}_rr_$node.log)
+                    if [ -n "$data" ]; then
+                        echo $idx,$data
+                    fi
+                done
             done
         done
     done
