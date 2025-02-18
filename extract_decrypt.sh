@@ -20,6 +20,7 @@ maindir=$1
 for resdir in `ls $maindir`; do
 # resdir="results-1e68e038"
 prefix=$maindir/$resdir/flamegraphs
+mkdir -p $maindir/$resdir/summary
 output=$maindir/$resdir/summary/decrypt_time.csv
 
 echo run,clients,decrypt_worker,decrypt_packet,spin_lock,idle > $output
@@ -29,7 +30,7 @@ for f in `ls $prefix`; do
     run=$(echo $name | cut -d- -f2)
     clients=$(echo $name | cut -d- -f4)
 
-    decrypt=$(extract_from_flamegraph $prefix/$f decrypt_packet)
+    decrypt=$(extract_from_flamegraph $prefix/$f chacha20poly)
     spin=$(extract_from_flamegraph $prefix/$f raw_spin_lock_bh)
     worker=$(extract_from_flamegraph $prefix/$f wg_packet_decrypt_worker)
     idle=$(extract_from_flamegraph $prefix/$f swapper)
