@@ -26,6 +26,11 @@ echo "Done!"
 $curr/cpu-pidstat.sh server > summary/server/cpu-pidstat.csv
 echo "Done!"
 
+# Get traceprintk data
+echo "Extracting traceprintk data..."
+$curr/traceprintk-funcgraph.sh server > summary/server/traceprintk.csv
+echo "Done!"
+
 # Get clients' data
 echo "Extracting clients' data..."
 mkdir -p summary/clients

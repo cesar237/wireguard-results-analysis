@@ -11,7 +11,7 @@ curr=`pwd`
 
 cd $run_dir/results
 
-echo "cpu,client,node,run,data,throughput,retransmissions,congestion_window"
+echo "cpu,client,run,core,timestamp,function,depth,calltime,rettime"
 
 for run in `ls`; do
     nrun=$(echo $run | cut -d- -f2)
@@ -22,19 +22,12 @@ for run in `ls`; do
         for flow in $(ls $run/$cpu); do
             nflow=$(echo $flow | cut -d "-" -f 2)
 
-            for node in `seq 1 $nflow`; do
-                trace-cmd report -R -i $run/$cpu/$flow/trace-printk/trace.dat \
-                    | grep funcgraph_exit \
-                    | tr "=[]" " " \
-                    | awk -v cpu=$ncpu -v flow=$nflow -v run=$nrun -v node=$node '{ print cpu,flow,node,run,$1,$2,$4,$7,$13,$15 }' \
-                    | tr ' ' ',' \
-                    | sed 's/:,/,/' \
-
-                # tail -n +4 $run/$cpu/$flow/iperf3-$node.log \
-                #     | head -n -5 \
-                #     | awk -v cpu=$ncpu -v flow=$nflow -v run=$nrun -v node=$node '{ print cpu,flow,node,run,$5,$7,$9,$10 }' \
-                #     | tr ' ' ','
-            done
+            trace-cmd report -R -i $run/$cpu/$flow/trace-printk/trace.dat \
+                | grep funcgraph_exit \
+                | tr "=[]" " " \
+                | tr -d ":" \
+                | awk -v cpu=$ncpu -v flow=$nflow -v run=$nrun '{ print cpu,flow,run,$2,$3,$6,$8,$12,$14 }' \
+                | tr ' ' ',' 
         done
     done
 done
