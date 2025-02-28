@@ -11,7 +11,7 @@ curr=`pwd`
 
 cd $run_dir/results
 
-echo "cpu,client,run,timestamp,wait,used,core,command"
+echo "timestamp,wait,used,core,command"
 
 # One-liner to read cleaned pidstat file
 # cat pidstat.data | grep -vE "^$|\%usr|grid5000" | less
