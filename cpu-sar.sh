@@ -9,7 +9,7 @@ else
 fi
 curr=`pwd`
 
-cd $run_dir/results
+cd $run_dir
 
 echo "cpu,client,run,core,usr,kernel,softirq,idle"
 

@@ -4,3 +4,5 @@ notebooks/.ipynb_checkpoints
 iperf-*.log
 *.csv
 logs/
+client-bench.zip
+results.tar.gz

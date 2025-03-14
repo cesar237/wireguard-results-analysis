@@ -1,4 +1,4 @@
-#! /usr/bin/bash
+#!/usr/bin/bash
 
 function flamegraph_sum_samples() {
 	# $1 is the file to look at
@@ -52,6 +52,167 @@ function draw_flamegraph_folder() {
 	done
 }
 
+function median() {
+	sort -n | awk '
+		BEGIN {c=0}
+		{nums[c++]=$1}
+		END {
+			if (c%2==0) print (nums[int(c/2)-1]+nums[int(c/2)])/2;
+			else print nums[int(c/2)]
+		}
+	'
+}
+
+function get_throughput_sockperf() {
+	dir_=$1
+	grep "Valid Duration" $dir_/*.log | tr '=;' ' ' | awk '{ print ($8 * 8 * 1500 / $5)/(1024*1024) }' | paste -sd+ | bc
+}
+
+function get_mean_latency_sockperf() {
+	dir_=$1
+	# grep "Summary" $dir_/*.log | cut -d ' ' -f5 | awk '{ sum += $1 } END { print sum/NR }'
+	grep "Summary" $dir_/*.log | cut -d ' ' -f5 | median
+}
+
+function get_percentile_latency_sockperf() {
+	dir_=$1
+	percentile=$2
+	grep "percentile $percentile" $dir_/*.log  | awk '{ print $NF }' | median
+}
+
+function get_mean_latency_sockperf() {
+	dir_=$1
+	value=`grep "Summary" $dir_/*.log | cut -d ' ' -f5 | awk '{ sum += $1 } END { print sum/NR }'`
+	echo "Got: $value"
+	if [[ "$value" =~  ^[0-9]+([.][0-9]+)?$ ]]; then
+		echo $value
+	else
+		echo 
+	fi
+}
+
+function get_all_throughput() {
+	resdir=$1
+	client_node=`ls $resdir/clients`
+	rpath=$resdir/clients/$client_node/results/run-1/CPU-18
+
+	echo clients,throughput
+
+	for nflow in `ls $rpath`; do
+		client=`echo $nflow | cut -d'-' -f2`
+		# echo $rpath/$nflow/sar
+		echo -n "$client,"
+		value=`get_throughput_sockperf $rpath/$nflow/sar`
+		if [ -z "$value" ]; then
+			value=" "
+		fi
+		echo $value
+	done
+}
+
+function get_all_throughput_batch() {
+	resdir=$1
+	client_node=`ls $resdir/clients`
+	rpath=$resdir/clients/$client_node/results/run-1
+
+	echo clients,batch,concurrency,throughput
+
+	for batch in `ls $rpath`; do
+		nbatch=`echo $batch | cut -d'-' -f2`
+		# echo $batch
+
+		for cc_level in `ls $rpath/$batch`; do
+			ncc_level=`echo $cc_level | cut -d'-' -f2`
+
+			for nflow in `ls $rpath/$batch/$cc_level/CPU-18`; do
+				client=`echo $nflow | cut -d'-' -f2`
+
+				echo -n "$client,$nbatch,$ncc_level,"
+				value=`get_throughput_sockperf $rpath/$batch/$cc_level/CPU-18/$nflow/sar`
+				if [ -z "$value" ]; then
+					value=" "
+				fi
+				echo $value
+			done
+
+		done
+	done
+}
+
+function nr_unique_wg_workers() {
+    nclient=$1
+    pidstatfile=server/results/run-1/CPU-18/nflow-$nclient/pidstat/pidstat.data
+    cat $pidstatfile \
+        | grep kworker \
+        | grep wg \
+        | awk '{ print $NF }' \
+        | sort | uniq | wc -l
+}
+
+function nr_unique_wg_batch_workers() {
+    nclient=$1
+	batch=$2
+	pidstatfile=server/results/batch-2/concurrency-4/run-1/CPU-18/nflow-100/pidstat/pidstat.data 
+    pidstatfile=server/results/run-1/CPU-18/nflow-$nclient/pidstat/pidstat.data
+    cat $pidstatfile \
+        | grep kworker \
+        | grep wg \
+        | awk '{ print $NF }' \
+        | sort | uniq | wc -l
+}
+
+function get_all_latency() {
+	resdir=$1
+	client_node=`ls $resdir/clients`
+	rpath=$resdir/clients/$client_node/results/run-1/CPU-18
+
+	echo clients,median,p99
+
+	for nflow in `ls $rpath`; do
+		client=`echo $nflow | cut -d'-' -f2`
+		# echo $rpath/$nflow/sar
+		echo -n "$client,"
+		# mean_value=`get_mean_latency_sockperf $rpath/$nflow/sar`
+		median_value=`get_percentile_latency_sockperf $rpath/$nflow/sar 50.00`
+		p99_value=`get_percentile_latency_sockperf $rpath/$nflow/sar 99.00`
+		if [ -z "$p99_value" ]; then
+			p99_value=" "
+		fi
+		echo $median_value,$p99_value
+	done
+}
+
+function get_all_latency_batch() {
+	resdir=$1
+	client_node=`ls $resdir/clients`
+	rpath=$resdir/clients/$client_node/results/run-1
+
+	echo clients,batch,concurrency,median,p99
+
+	for batch in `ls $rpath`; do
+		nbatch=`echo $batch | cut -d'-' -f2`
+		# echo $batch
+
+		for cc_level in `ls $rpath/$batch`; do
+			ncc_level=`echo $cc_level | cut -d'-' -f2`
+
+			for nflow in `ls $rpath/$batch/$cc_level/CPU-18`; do
+				client=`echo $nflow | cut -d'-' -f2`
+
+				echo -n "$client,$nbatch,$ncc_level,"
+				# value=`get_throughput_sockperf $rpath/$batch/$cc_level/CPU-18/$nflow/sar`
+				median_value=`get_percentile_latency_sockperf $rpath/$batch/$cc_level/CPU-18/$nflow/sar 50.00`
+				p99_value=`get_percentile_latency_sockperf $rpath/$batch/$cc_level/CPU-18/$nflow/sar 99.00`
+				if [ -z "$p99_value" ]; then
+					p99_value=" "
+				fi
+				echo $median_value,$p99_value
+			done
+
+		done
+	done
+}
+
 function extract_data_csv() {
 	directory=$1
 	if [ -z $1 ]; then
@@ -59,6 +220,15 @@ function extract_data_csv() {
 	fi
 	for res in `ls $directory`; do
 		./extract-csv.sh $directory/$res
+	done
+}
+
+function list_results() { 
+	res_dir=$1
+	root_dir=~/Documents/Wireguard/results-analysis
+	for i in `ls $root_dir/$res_dir`; do
+		echo -n "$i: "
+		cat $root_dir/$res_dir/$i/EXPERIMENT_DATA/CURRENT_EXP
 	done
 }
 

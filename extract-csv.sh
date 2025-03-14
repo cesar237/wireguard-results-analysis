@@ -23,18 +23,18 @@ echo "Extracting server data..."
 mkdir -p summary/server
 
 # Get server's CPU usage with PIDSTAT
-$curr/cpu-pidstat.sh server > summary/server/cpu-pidstat.csv
+$curr/cpu-pidstat.sh server/results > summary/server/cpu-pidstat.csv
 echo "Done!"
 
 # Get server's throughput
-$curr/throughput-sar.sh server > summary/server/throughput-sar.csv
+$curr/throughput-sar.sh server/results > summary/server/throughput-sar.csv
 
 # Get server's CPU usage
-$curr/cpu-sar.sh server > summary/server/cpu-sar.csv
+$curr/cpu-sar.sh server/results > summary/server/cpu-sar.csv
 echo "Done!"
 
 # Get server's CPU usage
-$curr/cpu-pidstat.sh server > summary/server/cpu-pidstat.csv
+$curr/cpu-pidstat.sh server/results > summary/server/cpu-pidstat.csv
 echo "Done!"
 
 # Get clients' data
@@ -47,7 +47,7 @@ if [[ "$kind" == "IPERF3" ]]; then
     i=0
     for node in $(ls clients/); do
         i=$(( i+1 ))
-        $curr/latency-netperf.sh clients/$node > summary/clients/latency-$i.csv
+        $curr/latency-netperf.sh clients/$node/results > summary/clients/latency-$i.csv
     done
     echo "Done!"
 
@@ -56,7 +56,7 @@ if [[ "$kind" == "IPERF3" ]]; then
     i=0
     for node in $(ls clients/); do
         i=$(( i+1 ))
-        $curr/throughput-iperf.sh clients/$node > summary/clients/throughput-$i.csv
+        $curr/throughput-iperf.sh clients/$node/results > summary/clients/throughput-$i.csv
     done
     echo "Done!"
 fi
@@ -67,7 +67,7 @@ echo "Extracting sockperf-latency metrics..."
 i=0
 for node in $(ls clients/); do
     i=$(( i+1 ))
-    $curr/latency-sockperf.sh clients/$node > summary/clients/sockperf-$i-.csv
+    $curr/latency-sockperf.sh clients/$node/results > summary/clients/sockperf-$i-.csv
     cat summary/clients/sockperf-$i-.csv | grep -v ppsforoldcompatibility > summary/clients/sockperf-$i.csv
 done
 echo "Done!"

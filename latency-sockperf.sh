@@ -9,7 +9,7 @@ else
 fi
 curr=`pwd`
 
-cd $run_dir/results
+cd $run_dir
 
 echo "cpu,client,node,run,min,median,99th,99.9th,99.99th,99.999th,max"
 
