@@ -6,3 +6,4 @@ iperf-*.log
 logs/
 client-bench.zip
 results.tar.gz
+benchmark-results

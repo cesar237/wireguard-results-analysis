@@ -63,6 +63,50 @@ function median() {
 	'
 }
 
+function median() {
+	sort -n | awk '
+		BEGIN {c=0}
+		{nums[c++]=$1}
+		END {
+			if (c%2==0) print (nums[int(c/2)-1]+nums[int(c/2)])/2;
+			else print nums[int(c/2)]
+		}
+	'
+}
+
+function sum() {
+    paste -sd+ | bc
+}
+
+function compute_metrics(){
+    path=$1
+    pushd $path > /dev/null
+    # echo -n Bandwidth=
+    bw=$(grep "BandWidth" *.log | tr -d '('  | awk '{ print $(NF-1) }' | sum )
+    # echo -n Tail Latency=
+    latency=$(grep "99.000" *.log | awk '{ print $NF }' | median)
+	echo "$bw,$latency"
+    popd > /dev/null
+}
+
+function read_pidstat_file() {
+    file=$1
+    cat $file | grep -vE "^$|\%usr|grid5000|Average"
+}
+
+function pidstat_to_csv(){
+	file=$1
+	read_pidstat_file $file \
+	| awk '{ print $1,$8,$9,$10,$11 }' \
+	| tr ' ' ','
+}
+
+function rename_dirs(){
+	resdir=$1
+	new_name=$(cat $resdir/EXPERIMENT_DATA/CURRENT_EXP)
+	mv $resdir $new_name
+}
+
 function get_throughput_sockperf() {
 	dir_=$1
 	grep "Valid Duration" $dir_/*.log | tr '=;' ' ' | awk '{ print ($8 * 8 * 1500 / $5)/(1024*1024) }' | paste -sd+ | bc

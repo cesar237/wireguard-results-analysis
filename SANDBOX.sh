@@ -5,7 +5,7 @@
 #folder=gonogo-5
 folder=$1
 
-# scp -r nancy.g5k:wireguard-experiment/results/$folder .
+scp -r nancy.g5k:wireguard-experiment/results/$folder .
 decompress_folder $folder
 # for resdir in `ls -d $folder/results-*`; do
 #     ./extract-client.sh $resdir
