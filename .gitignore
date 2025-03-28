@@ -7,3 +7,9 @@ logs/
 client-bench.zip
 results.tar.gz
 benchmark-results
+wg-rb-perf/
+arch
+bench-ipvs
+bench-ipvs-0
+bench-ipvs-30
+wg-rb-perf2
