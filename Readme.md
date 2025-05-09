@@ -1,7 +1,3 @@
-Here's a sample `README.md` for your project that clearly explains how to analyze results from the WireGuard experiments:
-
----
-
 # WireGuard Results Analysis
 
 This project provides tools and steps to analyze the results of WireGuard experiments conducted using the [`wireguard-experiment`](https://github.com/YOUR_USERNAME/wireguard-experiment) project. The analysis includes extracting metrics and visualizing them through Jupyter notebooks.
@@ -68,7 +64,3 @@ MIT License
 ## Related Projects
 
 * [wireguard-experiment](https://github.com/YOUR_USERNAME/wireguard-experiment) – Scripts to automate WireGuard experiments on Grid5000.
-
----
-
-Would you like me to generate a `requirements.txt` file as well?
